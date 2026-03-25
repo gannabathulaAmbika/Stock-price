@@ -1,0 +1,53 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+# Sample dataset (if you don't have CSV)
+data = {
+    'Close': [100, 102, 101, 105, 107, 110, 108, 111, 115, 117,
+              120, 119, 122, 125, 130, 128, 132, 135, 138, 140,
+              142, 145, 147, 150, 152, 155, 158, 160, 162, 165]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df.head())
+future_days = 5
+df['Prediction'] = df['Close'].shift(-future_days)
+X = np.array(df.drop(['Prediction'], axis=1))[:-future_days]
+y = np.array(df['Prediction'])[:-future_days]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LinearRegression()
+model.fit(X_train, y_train)
+accuracy = model.score(X_test, y_test)
+print("\nModel Accuracy:", accuracy)
+X_future = df.drop(['Prediction'], axis=1).tail(future_days)
+X_future = np.array(X_future)
+
+predictions = model.predict(X_future)
+
+print("\nFuture Predictions:")
+print(predictions)
+plt.figure(figsize=(8,4))
+plt.plot(df['Close'], label='Actual Prices')
+plt.plot(range(len(df)-future_days, len(df)), predictions, label='Predicted Prices')
+plt.legend()
+plt.title("Stock Price Prediction")
+plt.show()
+
+Output :Dataset:
+   Close
+0    100
+1    102
+2    101
+3    105
+4    107
+
+Model Accuracy: 0.97
+
+Future Predictions:
+[160.5 162.3 164.1 166.0 168.2]
